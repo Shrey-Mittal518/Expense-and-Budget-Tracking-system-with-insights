@@ -262,3 +262,6 @@ Date,Member,Category,Amount,Family_ID
 2025-10-09,user3_fam2,Shopping,128,fam2
 2025-10-09,user3_fam2,Travel,843,fam2
 2025-10-09,user3_fam2,Shopping,1400,fam2
+2025-10-24,user1,recharge,350.0,fam5
+2025-10-24,user1,recharge,350.0,fam5
+2025-10-24,user1,food,2000.0,fam5
