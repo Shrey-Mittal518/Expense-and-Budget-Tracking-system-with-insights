@@ -1,4 +1,3 @@
-# --- handles data storage and retrieval ---
 import pandas as pd
 from datetime import datetime
 import os
@@ -53,3 +52,4 @@ def auto_generate_expenses(family_count=5, users_per_family=10):
             for _ in range(random.randint(3,6)):
                 category = random.choice(categories)
                 amount = random.randint(50, 2000)
+                add_expense(member, category, amount, family_id)

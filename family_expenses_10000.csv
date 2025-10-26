@@ -265,3 +265,7 @@ Date,Member,Category,Amount,Family_ID
 2025-10-24,user1,recharge,350.0,fam5
 2025-10-24,user1,recharge,350.0,fam5
 2025-10-24,user1,food,2000.0,fam5
+2025-10-25,user3,food,3000.0,fam1
+2025-10-25,user3,food,3000.0,fam1
+2025-10-25,user3,rent,10000.0,fam1
+2025-10-26,user1,Education,150000.0,fam5

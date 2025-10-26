@@ -1,4 +1,4 @@
-# auth_app.py
+    # auth_app.py
 from flask import Flask, render_template_string, request, redirect, session
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -220,3 +220,4 @@ def logout():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
+

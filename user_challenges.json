@@ -1,0 +1,49 @@
+{
+  "user1": {
+    "active_challenges": [
+      {
+        "name": "Save \u20b95000 Challenge",
+        "description": "Keep your monthly spending under budget to save \u20b95000",
+        "target": 5000,
+        "reward": "\ud83d\udcb0 Savings Champion",
+        "points": 200,
+        "id": "save_5000",
+        "progress": 0,
+        "started_at": "2025-10-25"
+      }
+    ],
+    "completed_challenges": [],
+    "total_points": 0
+  },
+  "user_1": {
+    "active_challenges": [],
+    "completed_challenges": [
+      {
+        "name": "Save \u20b95000 Challenge",
+        "description": "Keep your monthly spending under budget to save \u20b95000",
+        "target": 5000,
+        "reward": "\ud83d\udcb0 Savings Champion",
+        "points": 200,
+        "id": "save_5000",
+        "progress": 33000.0,
+        "started_at": "2025-10-25"
+      }
+    ],
+    "total_points": 200
+  },
+  "user_2": {
+    "active_challenges": [],
+    "completed_challenges": [],
+    "total_points": 0
+  },
+  "user_4": {
+    "active_challenges": [],
+    "completed_challenges": [],
+    "total_points": 0
+  },
+  "user2": {
+    "active_challenges": [],
+    "completed_challenges": [],
+    "total_points": 0
+  }
+}
