@@ -1,142 +1,134 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard - AdvancedExpenseTrackerPro{% endblock %}
 
 {% block content %}
-<div class="stats">
-    <div class="stat-card">
-        <div class="stat-label">Total Balance</div>
-        <div class="stat-value">₹{{ "%.2f"|format(balance) }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Total Income</div>
-        <div class="stat-value positive">₹{{ "%.2f"|format(income) }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Total Expenses</div>
-        <div class="stat-value negative">₹{{ "%.2f"|format(expenses) }}</div>
+<div class="hero-bg py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome, {{ current_user.username }}</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-sm text-gray-600">Total Balance</p>
+                    <p class="text-2xl font-bold text-indigo-600">₹{{ "%.2f"|format(balance) }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Total Income</p>
+                    <p class="text-2xl font-bold text-green-600">₹{{ "%.2f"|format(income) }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Total Expenses</p>
+                    <p class="text-2xl font-bold text-red-600">₹{{ "%.2f"|format(expenses) }}</p>
+                </div>
+            </div>
+            {% if overspent_envelopes %}
+            <div class="mt-4 p-3 bg-red-100 border border-red-400 rounded-lg">
+                <p class="text-red-800 font-semibold">⚠️ Overspending Alert!</p>
+                <p class="text-sm text-red-700">
+                    {% for env in overspent_envelopes %}
+                    {{ env.name }} (₹{{ "%.2f"|format(env.spent - env.allocated) }} over){% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
-{% if overspent_envelopes %}
-<div class="card" style="background-color: #fee; border: 1px solid #fcc; margin-top: 20px;">
-    <strong>⚠️ Overspending Alert!</strong>
-    <p style="margin-top: 8px;">
-        {% for env in overspent_envelopes %}
-        {{ env.name }} (₹{{ "%.2f"|format(env.spent - env.allocated) }} over){% if not loop.last %}, {% endif %}
-        {% endfor %}
-    </p>
-</div>
-{% endif %}
-
-<div class="card" style="margin-top: 20px;">
-    <h2>Recent Transactions</h2>
-    <button onclick="showAddModal()" style="margin-bottom: 15px; margin-top: 10px;">Add Transaction</button>
-    
-    {% if transactions %}
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Merchant</th>
-                <th>Category</th>
-                <th>Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for t in transactions %}
-            <tr>
-                <td>{{ t.date }}</td>
-                <td>{{ t.merchant }}</td>
-                <td>{{ t.category }}</td>
-                <td>
-                    <span style="color: {% if t.amount < 0 %}#f44336{% else %}#4CAF50{% endif %}; font-weight: bold;">
-                        {% if t.amount < 0 %}-{% else %}+{% endif %}₹{{ "%.2f"|format(t.amount|abs) }}
-                    </span>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="text-center" style="padding: 30px;">No transactions yet</p>
-    {% endif %}
-</div>
-
-<div class="card" style="margin-top: 20px;">
-    <h2>Balance Forecast</h2>
-    {% if forecast and forecast.daily_projections %}
-    <div style="margin-top: 15px;">
-        <p style="margin-bottom: 8px;"><strong>30-Day Projection:</strong> ₹{{ "%.2f"|format(forecast.projected_balance) }}</p>
-        <p style="margin-bottom: 15px;"><strong>Confidence:</strong> {{ forecast.confidence }}</p>
-        
-        <canvas id="miniChart" width="600" height="150" style="max-width: 100%; border: 1px solid #ddd; background: #fafafa; margin-top: 10px;"></canvas>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Envelopes</h3>
+            <p class="text-3xl font-bold text-indigo-600">{{ envelopes|length }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Goals</h3>
+            <p class="text-3xl font-bold text-green-600">{{ goals|length }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Transactions</h3>
+            <p class="text-3xl font-bold text-blue-600">{{ transactions|length }}</p>
+        </div>
     </div>
-    <script>
-    (function() {
-        var canvas = document.getElementById('miniChart');
-        if (!canvas) return;
-        
-        var ctx = canvas.getContext('2d');
-        var data = [
-            {% for day in forecast.daily_projections[:30] %}
-            {{ day.balance }}{% if not loop.last %},{% endif %}
-            {% endfor %}
-        ];
-        
-        var width = canvas.width;
-        var height = canvas.height;
-        var padding = 20;
-        var chartWidth = width - padding * 2;
-        var chartHeight = height - padding * 2;
-        
-        var min = Math.min.apply(null, data);
-        var max = Math.max.apply(null, data);
-        var range = max - min || 1;
-        
-        ctx.clearRect(0, 0, width, height);
-        
-        // Draw bars
-        var barWidth = chartWidth / data.length;
-        var barSpacing = barWidth * 0.15;
-        var actualBarWidth = barWidth - barSpacing;
-        
-        for (var i = 0; i < data.length; i++) {
-            var x = padding + (chartWidth / data.length) * i + barSpacing / 2;
-            var barHeight = ((data[i] - min) / range) * chartHeight;
-            var y = padding + chartHeight - barHeight;
-            
-            var isPositive = data[i] >= 0;
-            ctx.fillStyle = isPositive ? '#4CAF50' : '#f44336';
-            ctx.fillRect(x, y, actualBarWidth, barHeight);
-        }
-    })();
-    </script>
-    {% else %}
-    <p style="padding: 20px;">Add transactions to see forecast</p>
-    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900">Recent Transactions</h2>
+                <button onclick="showAddModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    Add Transaction
+                </button>
+            </div>
+            {% if transactions %}
+            <div class="space-y-3">
+                {% for t in transactions %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-900">{{ t.merchant }}</p>
+                        <p class="text-sm text-gray-500">{{ t.category }} • {{ t.date }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold {% if t.amount < 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                            {% if t.amount < 0 %}-{% else %}+{% endif %}₹{{ "%.2f"|format(t.amount|abs) }}
+                        </p>
+                        <p class="text-xs text-gray-500">{% if t.amount < 0 %}Expense{% else %}Income{% endif %}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No transactions yet</p>
+            {% endif %}
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Balance Forecast</h2>
+            {% if forecast and forecast.daily_projections %}
+            <div class="space-y-2">
+                <p class="text-sm text-gray-600">30-Day Projection: 
+                    <span class="font-bold text-indigo-600">₹{{ "%.2f"|format(forecast.projected_balance) }}</span>
+                </p>
+                <p class="text-sm text-gray-600">Confidence: 
+                    <span class="font-medium">{{ forecast.confidence }}</span>
+                </p>
+                <div class="mt-4 h-48 flex items-end space-x-1">
+                    {% set min_bal = forecast.daily_projections|map(attribute='balance')|min %}
+                    {% set max_bal = forecast.daily_projections|map(attribute='balance')|max %}
+                    {% set bal_range = max_bal - min_bal %}
+                    {% for day in forecast.daily_projections[:30] %}
+                    {% if bal_range > 0 %}
+                    <div class="flex-1 bg-indigo-200 rounded-t" 
+                         style="height: {{ ((day.balance - min_bal) / bal_range * 100)|int }}%"
+                         title="{{ day.date }}: ₹{{ day.balance }}">
+                    </div>
+                    {% else %}
+                    <div class="flex-1 bg-indigo-200 rounded-t" 
+                         style="height: 50%"
+                         title="{{ day.date }}: ₹{{ day.balance }}">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">Add transactions to see forecast</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
-<!-- Add Transaction Modal -->
-<div id="addModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">Add Transaction</div>
+<div id="addModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <h3 class="text-lg font-bold mb-4">Add Transaction</h3>
         <form method="POST" action="{{ url_for('add_transaction') }}">
-            <div class="form-group">
-                <label>Merchant</label>
-                <input type="text" name="merchant" required>
-            </div>
-            <div class="form-group">
-                <label>Amount (negative for expense, positive for income)</label>
-                <input type="number" name="amount" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label>Date</label>
-                <input type="date" name="date" required>
-            </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select name="category" required>
+            <div class="space-y-3">
+                <input type="text" name="merchant" placeholder="Merchant" required
+                       class="w-full px-3 py-2 border rounded-lg">
+                <input type="number" name="amount" step="0.01" placeholder="Amount (negative for expense, positive for income)" required
+                       class="w-full px-3 py-2 border rounded-lg">
+                <input type="date" name="date" required
+                       class="w-full px-3 py-2 border rounded-lg">
+                <select name="category" required class="w-full px-3 py-2 border rounded-lg">
                     <option value="">Select Category</option>
                     <option>Food & Dining</option>
                     <option>Shopping</option>
@@ -148,14 +140,18 @@
                     <option>Income</option>
                     <option>Other</option>
                 </select>
+                <textarea name="notes" placeholder="Notes (optional)" rows="2"
+                          class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
-            <div class="form-group">
-                <label>Notes (optional)</label>
-                <textarea name="notes" rows="2"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" onclick="hideAddModal()" class="btn-secondary">Cancel</button>
-                <button type="submit">Add</button>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" onclick="hideAddModal()" 
+                        class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                    Add
+                </button>
             </div>
         </form>
     </div>
@@ -163,16 +159,10 @@
 
 <script>
 function showAddModal() {
-    document.getElementById('addModal').style.display = 'block';
+    document.getElementById('addModal').classList.remove('hidden');
 }
 function hideAddModal() {
-    document.getElementById('addModal').style.display = 'none';
-}
-window.onclick = function(event) {
-    var modal = document.getElementById('addModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
+    document.getElementById('addModal').classList.add('hidden');
 }
 </script>
 {% endblock %}

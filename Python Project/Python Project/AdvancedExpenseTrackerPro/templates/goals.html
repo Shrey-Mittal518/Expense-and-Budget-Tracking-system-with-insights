@@ -1,93 +1,87 @@
 {% extends "base.html" %}
 
-{% block title %}Goals{% endblock %}
-
 {% block content %}
-<div class="card">
-    <h2>Savings Goals</h2>
-    <button onclick="showAddModal()" style="margin-bottom: 15px;">Create Goal</button>
-
-    {% if goals %}
-    <div style="display: grid; gap: 20px;">
-        {% for goal in goals %}
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                <div>
-                    <h3>{{ goal.name }}</h3>
-                    {% if goal.deadline %}
-                    <p style="font-size: 14px; color: #666;">Target Date: {{ goal.deadline }}</p>
-                    {% endif %}
-                </div>
-                <span style="font-size: 24px; font-weight: bold; color: #4CAF50;">
-                    {{ "%.0f"|format((goal.current / goal.target * 100)) }}%
-                </span>
-            </div>
-            <div style="margin-top: 10px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span>Current:</span>
-                    <strong>₹{{ "%.2f"|format(goal.current) }}</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span>Target:</span>
-                    <strong>₹{{ "%.2f"|format(goal.target) }}</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span>Remaining:</span>
-                    <strong style="color: #4CAF50;">₹{{ "%.2f"|format(goal.target - goal.current) }}</strong>
-                </div>
-                {% if goal.target > 0 %}
-                {% set goal_percentage = (goal.current / goal.target * 100)|int %}
-                {% if goal_percentage > 100 %}{% set display_goal_percentage = 100 %}{% else %}{% set display_goal_percentage = goal_percentage %}{% endif %}
-                <div style="background-color: #ddd; height: 15px; border-radius: 5px; overflow: hidden;">
-                    <div style="background-color: #4CAF50; height: 100%; width: {{ display_goal_percentage }}%;"></div>
-                </div>
-                {% endif %}
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Savings Goals</h1>
+            <button onclick="showAddModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                Create Goal
+            </button>
         </div>
-        {% endfor %}
+
+        {% if goals %}
+        <div class="space-y-6">
+            {% for goal in goals %}
+            <div class="border rounded-xl p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">{{ goal.name }}</h3>
+                        {% if goal.deadline %}
+                        <p class="text-sm text-gray-500">Target Date: {{ goal.deadline }}</p>
+                        {% endif %}
+                    </div>
+                    <span class="text-2xl font-bold text-indigo-600">
+                        {{ "%.0f"|format((goal.current / goal.target * 100)) }}%
+                    </span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Current:</span>
+                        <span class="font-medium">₹{{ "%.2f"|format(goal.current) }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Target:</span>
+                        <span class="font-medium">₹{{ "%.2f"|format(goal.target) }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Remaining:</span>
+                        <span class="font-bold text-green-600">₹{{ "%.2f"|format(goal.target - goal.current) }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 mt-3">
+                        {% if goal.target > 0 %}
+                        {% set goal_percentage = (goal.current / goal.target * 100)|int %}
+                        {% if goal_percentage > 100 %}
+                        {% set display_goal_percentage = 100 %}
+                        {% else %}
+                        {% set display_goal_percentage = goal_percentage %}
+                        {% endif %}
+                        <div class="bg-green-600 h-3 rounded-full transition-all" 
+                             style="width: {{ display_goal_percentage }}%"></div>
+                        {% else %}
+                        <div class="bg-gray-400 h-3 rounded-full" style="width: 0%"></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-12">No goals yet. Create your first savings goal.</p>
+        {% endif %}
     </div>
-    {% else %}
-    <p class="text-center">No goals yet. Create your first savings goal.</p>
-    {% endif %}
 </div>
 
-<!-- Add Goal Modal -->
-<div id="addModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">Create Goal</div>
+<div id="addModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <h3 class="text-lg font-bold mb-4">Create Goal</h3>
         <form method="POST" action="{{ url_for('add_goal') }}">
-            <div class="form-group">
-                <label>Goal Name</label>
-                <input type="text" name="name" required>
+            <div class="space-y-3">
+                <input type="text" name="name" placeholder="Goal Name" required class="w-full px-3 py-2 border rounded-lg">
+                <input type="number" name="target" step="0.01" placeholder="Target Amount" required class="w-full px-3 py-2 border rounded-lg">
+                <input type="number" name="current" step="0.01" placeholder="Current Amount" value="0" class="w-full px-3 py-2 border rounded-lg">
+                <input type="date" name="deadline" placeholder="Deadline (optional)" class="w-full px-3 py-2 border rounded-lg">
             </div>
-            <div class="form-group">
-                <label>Target Amount</label>
-                <input type="number" name="target" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label>Deadline (optional)</label>
-                <input type="date" name="deadline">
-            </div>
-            <div class="modal-footer">
-                <button type="button" onclick="hideAddModal()" class="btn-secondary">Cancel</button>
-                <button type="submit">Create</button>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" onclick="hideAddModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Create</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-function showAddModal() {
-    document.getElementById('addModal').style.display = 'block';
-}
-function hideAddModal() {
-    document.getElementById('addModal').style.display = 'none';
-}
-window.onclick = function(event) {
-    var modal = document.getElementById('addModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
+function showAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
+function hideAddModal() { document.getElementById('addModal').classList.add('hidden'); }
 </script>
 {% endblock %}

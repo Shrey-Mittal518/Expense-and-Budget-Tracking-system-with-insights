@@ -3,24 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Expense Tracker{% endblock %}</title>
+    <title>{% block title %}AdvancedExpenseTrackerPro{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .hero-bg {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1920') center/cover;
+        }
+        /* Dark theme styles */
+        body.dark-theme { background-color: #1a1a1a; color: #e5e5e5; }
+        body.dark-theme .bg-white { background-color: #2d2d2d !important; }
+        body.dark-theme .bg-gray-50 { background-color: #1a1a1a !important; }
+        body.dark-theme .text-gray-900 { color: #e5e5e5 !important; }
+        body.dark-theme .text-gray-700 { color: #b0b0b0 !important; }
+        body.dark-theme .text-gray-600 { color: #909090 !important; }
+        body.dark-theme .text-gray-500 { color: #707070 !important; }
+        body.dark-theme .border-gray-300 { border-color: #404040 !important; }
+        body.dark-theme .bg-gray-100 { background-color: #2a2a2a !important; }
+        body.dark-theme input, body.dark-theme select, body.dark-theme textarea {
+            background-color: #2a2a2a !important;
+            color: #e5e5e5 !important;
+            border-color: #404040 !important;
+        }
+        body.dark-theme .shadow { box-shadow: 0 1px 3px 0 rgba(255, 255, 255, 0.1) !important; }
+        body.dark-theme .shadow-xl { box-shadow: 0 20px 25px -5px rgba(255, 255, 255, 0.1) !important; }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50">
     {% if current_user.is_authenticated %}
-    <nav>
-        <div class="nav-container">
-            <div class="nav-brand">Expense Tracker</div>
-            <div class="nav-links">
-                <a href="{{ url_for('index') }}">Home</a>
-                <a href="{{ url_for('transactions') }}">Transactions</a>
-                <a href="{{ url_for('envelopes') }}">Envelopes</a>
-                <a href="{{ url_for('goals') }}">Goals</a>
-                <a href="{{ url_for('forecast') }}">Forecast</a>
-                <a href="{{ url_for('online_sales') }}">Online Sales</a>
-                <a href="{{ url_for('offers') }}">Offers</a>
-                <a href="{{ url_for('settings') }}">Settings</a>
-                <a href="{{ url_for('logout') }}">Logout</a>
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-indigo-600">ExpenseTracker</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Home
+                        </a>
+                        <a href="{{ url_for('transactions') }}" class="{% if request.endpoint == 'transactions' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Transactions
+                        </a>
+                        <a href="{{ url_for('envelopes') }}" class="{% if request.endpoint == 'envelopes' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Envelopes
+                        </a>
+                        <a href="{{ url_for('goals') }}" class="{% if request.endpoint == 'goals' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Goals
+                        </a>
+                        <a href="{{ url_for('forecast') }}" class="{% if request.endpoint == 'forecast' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Forecast
+                        </a>
+                        <a href="{{ url_for('online_sales') }}" class="{% if request.endpoint == 'online_sales' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Online Sales
+                        </a>
+                        <a href="{{ url_for('offers') }}" class="{% if request.endpoint == 'offers' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Offers
+                        </a>
+                        <a href="{{ url_for('recurring') }}" class="{% if request.endpoint == 'recurring' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Recurring
+                        </a>
+                        <a href="{{ url_for('reconcile') }}" class="{% if request.endpoint == 'reconcile' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Reconcile
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a href="{{ url_for('cart') }}" class="relative text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" title="Purchase History">
+                        🛒
+                    </a>
+                    <button onclick="toggleTheme()" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" title="Toggle Dark/Light Theme">
+                        🌓
+                    </button>
+                    <a href="{{ url_for('settings') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                        Settings
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                        Logout
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -28,9 +92,11 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="messages">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
                 {% for category, message in messages %}
-                <div class="message message-{{ category }}">{{ message }}</div>
+                <div class="{% if category == 'error' %}bg-red-100 border-red-400 text-red-700{% else %}bg-green-100 border-green-400 text-green-700{% endif %} px-4 py-3 rounded relative mb-4" role="alert">
+                    <span class="block sm:inline">{{ message }}</span>
+                </div>
                 {% endfor %}
             </div>
         {% endif %}
@@ -41,6 +107,22 @@
     </main>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+        });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
