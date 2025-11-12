@@ -1,0 +1,20 @@
+# Safe Redirect Domains Whitelist
+# Add one domain per line (without https://)
+# Subdomains are automatically allowed
+
+amazon.in
+amazon.com
+flipkart.com
+myntra.com
+swiggy.com
+zomato.com
+paytm.com
+snapdeal.com
+ajio.com
+nykaa.com
+meesho.com
+shopclues.com
+tatacliq.com
+bigbasket.com
+grofers.com
+dunzo.com

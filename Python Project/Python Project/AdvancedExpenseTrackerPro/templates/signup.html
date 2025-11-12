@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Create Account</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input id="confirm_password" name="confirm_password" type="password" required>
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="auto_detect">
+                Enable auto-detect transactions
+            </label>
+        </div>
+        <button type="submit">Sign Up</button>
+    </form>
+    <div class="auth-link">
+        <a href="{{ url_for('login') }}">Already have an account? Sign in</a>
+    </div>
+</div>
+{% endblock %}

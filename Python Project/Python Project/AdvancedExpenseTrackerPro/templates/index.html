@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-label">Total Balance</div>
+        <div class="stat-value">₹{{ "%.2f"|format(balance) }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Income</div>
+        <div class="stat-value positive">₹{{ "%.2f"|format(income) }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-value negative">₹{{ "%.2f"|format(expenses) }}</div>
+    </div>
+</div>
+
+{% if overspent_envelopes %}
+<div class="card" style="background-color: #fee; border: 1px solid #fcc; margin-top: 20px;">
+    <strong>⚠️ Overspending Alert!</strong>
+    <p style="margin-top: 8px;">
+        {% for env in overspent_envelopes %}
+        {{ env.name }} (₹{{ "%.2f"|format(env.spent - env.allocated) }} over){% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+</div>
+{% endif %}
+
+<div class="card" style="margin-top: 20px;">
+    <h2>Recent Transactions</h2>
+    <button onclick="showAddModal()" style="margin-bottom: 15px; margin-top: 10px;">Add Transaction</button>
+    
+    {% if transactions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Merchant</th>
+                <th>Category</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.date }}</td>
+                <td>{{ t.merchant }}</td>
+                <td>{{ t.category }}</td>
+                <td>
+                    <span style="color: {% if t.amount < 0 %}#f44336{% else %}#4CAF50{% endif %}; font-weight: bold;">
+                        {% if t.amount < 0 %}-{% else %}+{% endif %}₹{{ "%.2f"|format(t.amount|abs) }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center" style="padding: 30px;">No transactions yet</p>
+    {% endif %}
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h2>Balance Forecast</h2>
+    {% if forecast and forecast.daily_projections %}
+    <div style="margin-top: 15px;">
+        <p style="margin-bottom: 8px;"><strong>30-Day Projection:</strong> ₹{{ "%.2f"|format(forecast.projected_balance) }}</p>
+        <p style="margin-bottom: 15px;"><strong>Confidence:</strong> {{ forecast.confidence }}</p>
+        
+        <canvas id="miniChart" width="600" height="150" style="max-width: 100%; border: 1px solid #ddd; background: #fafafa; margin-top: 10px;"></canvas>
+    </div>
+    <script>
+    (function() {
+        var canvas = document.getElementById('miniChart');
+        if (!canvas) return;
+        
+        var ctx = canvas.getContext('2d');
+        var data = [
+            {% for day in forecast.daily_projections[:30] %}
+            {{ day.balance }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        var width = canvas.width;
+        var height = canvas.height;
+        var padding = 20;
+        var chartWidth = width - padding * 2;
+        var chartHeight = height - padding * 2;
+        
+        var min = Math.min.apply(null, data);
+        var max = Math.max.apply(null, data);
+        var range = max - min || 1;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        // Draw bars
+        var barWidth = chartWidth / data.length;
+        var barSpacing = barWidth * 0.15;
+        var actualBarWidth = barWidth - barSpacing;
+        
+        for (var i = 0; i < data.length; i++) {
+            var x = padding + (chartWidth / data.length) * i + barSpacing / 2;
+            var barHeight = ((data[i] - min) / range) * chartHeight;
+            var y = padding + chartHeight - barHeight;
+            
+            var isPositive = data[i] >= 0;
+            ctx.fillStyle = isPositive ? '#4CAF50' : '#f44336';
+            ctx.fillRect(x, y, actualBarWidth, barHeight);
+        }
+    })();
+    </script>
+    {% else %}
+    <p style="padding: 20px;">Add transactions to see forecast</p>
+    {% endif %}
+</div>
+
+<!-- Add Transaction Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Add Transaction</div>
+        <form method="POST" action="{{ url_for('add_transaction') }}">
+            <div class="form-group">
+                <label>Merchant</label>
+                <input type="text" name="merchant" required>
+            </div>
+            <div class="form-group">
+                <label>Amount (negative for expense, positive for income)</label>
+                <input type="number" name="amount" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category" required>
+                    <option value="">Select Category</option>
+                    <option>Food & Dining</option>
+                    <option>Shopping</option>
+                    <option>Transportation</option>
+                    <option>Bills & Utilities</option>
+                    <option>Entertainment</option>
+                    <option>Healthcare</option>
+                    <option>Travel</option>
+                    <option>Income</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea name="notes" rows="2"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="hideAddModal()" class="btn-secondary">Cancel</button>
+                <button type="submit">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showAddModal() {
+    document.getElementById('addModal').style.display = 'block';
+}
+function hideAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+window.onclick = function(event) {
+    var modal = document.getElementById('addModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

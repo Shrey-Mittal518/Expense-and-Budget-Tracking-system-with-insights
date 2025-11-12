@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Recurring Transactions</h1>
+
+        {% if recurring %}
+        <div class="space-y-4">
+            {% for rec in recurring %}
+            <div class="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">{{ rec.merchant }}</h3>
+                        <div class="mt-2 space-y-1">
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Pattern:</span> {{ rec.pattern }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Average Amount:</span> 
+                                <span class="text-red-600 font-bold">₹{{ "%.2f"|format(rec.avg_amount) }}</span>
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Occurrences:</span> {{ rec.count }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Last Date:</span> {{ rec.last_date }}
+                            </p>
+                            <p class="text-sm text-green-600 font-medium">
+                                Next Expected: {{ rec.next_expected }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                            {{ rec.pattern }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-12">No recurring patterns detected yet. Add more transactions to identify recurring payments.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Reconciliation</h1>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">Upload Bank Statement</h2>
+            <p class="text-sm text-gray-600 mb-4">Upload your bank statement (CSV format) to match against your recorded transactions.</p>
+            
+            <form method="POST" action="{{ url_for('reconcile_upload') }}" enctype="multipart/form-data" class="space-y-4">
+                <div>
+                    <input type="file" name="file" accept=".csv" required 
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                </div>
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                    Start Reconciliation
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-6">
+            <h3 class="font-semibold text-gray-900 mb-3">How Reconciliation Works</h3>
+            <ul class="space-y-2 text-sm text-gray-600">
+                <li>• Upload your bank statement in CSV format</li>
+                <li>• The system will match transactions by date, amount, and merchant</li>
+                <li>• Review matched and unmatched transactions</li>
+                <li>• Identify discrepancies and missing entries</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

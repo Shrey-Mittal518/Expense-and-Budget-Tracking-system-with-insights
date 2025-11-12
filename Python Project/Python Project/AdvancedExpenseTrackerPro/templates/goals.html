@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Goals{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Savings Goals</h2>
+    <button onclick="showAddModal()" style="margin-bottom: 15px;">Create Goal</button>
+
+    {% if goals %}
+    <div style="display: grid; gap: 20px;">
+        {% for goal in goals %}
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <div>
+                    <h3>{{ goal.name }}</h3>
+                    {% if goal.deadline %}
+                    <p style="font-size: 14px; color: #666;">Target Date: {{ goal.deadline }}</p>
+                    {% endif %}
+                </div>
+                <span style="font-size: 24px; font-weight: bold; color: #4CAF50;">
+                    {{ "%.0f"|format((goal.current / goal.target * 100)) }}%
+                </span>
+            </div>
+            <div style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Current:</span>
+                    <strong>₹{{ "%.2f"|format(goal.current) }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Target:</span>
+                    <strong>₹{{ "%.2f"|format(goal.target) }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Remaining:</span>
+                    <strong style="color: #4CAF50;">₹{{ "%.2f"|format(goal.target - goal.current) }}</strong>
+                </div>
+                {% if goal.target > 0 %}
+                {% set goal_percentage = (goal.current / goal.target * 100)|int %}
+                {% if goal_percentage > 100 %}{% set display_goal_percentage = 100 %}{% else %}{% set display_goal_percentage = goal_percentage %}{% endif %}
+                <div style="background-color: #ddd; height: 15px; border-radius: 5px; overflow: hidden;">
+                    <div style="background-color: #4CAF50; height: 100%; width: {{ display_goal_percentage }}%;"></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">No goals yet. Create your first savings goal.</p>
+    {% endif %}
+</div>
+
+<!-- Add Goal Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Create Goal</div>
+        <form method="POST" action="{{ url_for('add_goal') }}">
+            <div class="form-group">
+                <label>Goal Name</label>
+                <input type="text" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Target Amount</label>
+                <input type="number" name="target" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Deadline (optional)</label>
+                <input type="date" name="deadline">
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="hideAddModal()" class="btn-secondary">Cancel</button>
+                <button type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showAddModal() {
+    document.getElementById('addModal').style.display = 'block';
+}
+function hideAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+window.onclick = function(event) {
+    var modal = document.getElementById('addModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
