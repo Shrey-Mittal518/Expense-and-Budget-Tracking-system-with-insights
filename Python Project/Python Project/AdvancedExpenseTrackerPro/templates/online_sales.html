@@ -1,104 +1,92 @@
 {% extends "base.html" %}
 
+{% block title %}Online Sales{% endblock %}
+
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Quick Access Shopping Sites -->
-    <div class="bg-white rounded-xl shadow p-6 mb-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">🛍️ Shop Online - Quick Access</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <a href="https://www.amazon.in" target="_blank" 
-               class="flex flex-col items-center p-4 border-2 border-orange-400 rounded-xl hover:shadow-lg transition-all hover:scale-105">
-                <span class="text-4xl mb-2">🛒</span>
-                <span class="text-sm font-semibold text-gray-900">Amazon</span>
-            </a>
-            <a href="https://www.flipkart.com" target="_blank" 
-               class="flex flex-col items-center p-4 border-2 border-blue-500 rounded-xl hover:shadow-lg transition-all hover:scale-105">
-                <span class="text-4xl mb-2">🛍️</span>
-                <span class="text-sm font-semibold text-gray-900">Flipkart</span>
-            </a>
-            <a href="https://www.myntra.com" target="_blank" 
-               class="flex flex-col items-center p-4 border-2 border-pink-500 rounded-xl hover:shadow-lg transition-all hover:scale-105">
-                <span class="text-4xl mb-2">👗</span>
-                <span class="text-sm font-semibold text-gray-900">Myntra</span>
-            </a>
-            <a href="https://www.swiggy.com" target="_blank" 
-               class="flex flex-col items-center p-4 border-2 border-orange-500 rounded-xl hover:shadow-lg transition-all hover:scale-105">
-                <span class="text-4xl mb-2">🍔</span>
-                <span class="text-sm font-semibold text-gray-900">Swiggy</span>
-            </a>
-            <a href="https://www.zomato.com" target="_blank" 
-               class="flex flex-col items-center p-4 border-2 border-red-500 rounded-xl hover:shadow-lg transition-all hover:scale-105">
-                <span class="text-4xl mb-2">🍕</span>
-                <span class="text-sm font-semibold text-gray-900">Zomato</span>
-            </a>
-            <a href="https://paytm.com" target="_blank" 
-               class="flex flex-col items-center p-4 border-2 border-blue-400 rounded-xl hover:shadow-lg transition-all hover:scale-105">
-                <span class="text-4xl mb-2">💳</span>
-                <span class="text-sm font-semibold text-gray-900">Paytm</span>
-            </a>
-        </div>
+<div class="card">
+    <h2>🛍️ Shop Online - Quick Access</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+        <a href="https://www.amazon.in" target="_blank" style="text-align: center; padding: 20px; border: 2px solid #FF9900; border-radius: 4px; text-decoration: none; color: #333; display: block;">
+            <div style="font-size: 36px; margin-bottom: 10px;">🛒</div>
+            <div style="font-weight: bold;">Amazon</div>
+        </a>
+        <a href="https://www.flipkart.com" target="_blank" style="text-align: center; padding: 20px; border: 2px solid #2874F0; border-radius: 4px; text-decoration: none; color: #333; display: block;">
+            <div style="font-size: 36px; margin-bottom: 10px;">🛍️</div>
+            <div style="font-weight: bold;">Flipkart</div>
+        </a>
+        <a href="https://www.myntra.com" target="_blank" style="text-align: center; padding: 20px; border: 2px solid #FF3F6C; border-radius: 4px; text-decoration: none; color: #333; display: block;">
+            <div style="font-size: 36px; margin-bottom: 10px;">👗</div>
+            <div style="font-weight: bold;">Myntra</div>
+        </a>
+        <a href="https://www.swiggy.com" target="_blank" style="text-align: center; padding: 20px; border: 2px solid #FC8019; border-radius: 4px; text-decoration: none; color: #333; display: block;">
+            <div style="font-size: 36px; margin-bottom: 10px;">🍔</div>
+            <div style="font-weight: bold;">Swiggy</div>
+        </a>
+        <a href="https://www.zomato.com" target="_blank" style="text-align: center; padding: 20px; border: 2px solid #E23744; border-radius: 4px; text-decoration: none; color: #333; display: block;">
+            <div style="font-size: 36px; margin-bottom: 10px;">🍕</div>
+            <div style="font-weight: bold;">Zomato</div>
+        </a>
+        <a href="https://paytm.com" target="_blank" style="text-align: center; padding: 20px; border: 2px solid #00BAF2; border-radius: 4px; text-decoration: none; color: #333; display: block;">
+            <div style="font-size: 36px; margin-bottom: 10px;">💳</div>
+            <div style="font-weight: bold;">Paytm</div>
+        </a>
     </div>
+</div>
 
-    <!-- Your Online Transactions -->
-    <div class="bg-white rounded-xl shadow p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">📦 Your Online Purchases</h1>
+<div class="card">
+    <h2>📦 Your Online Purchases</h2>
 
-        {% if sales %}
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Merchant</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for sale in sales %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ sale.date }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ sale.merchant }}
-                            <span class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Online</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.category }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">
-                            -₹{{ "%.2f"|format(sale.amount|abs) }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            {% if 'amazon' in sale.merchant.lower() %}
-                            <a href="https://www.amazon.in/orders" target="_blank" class="text-blue-600 hover:text-blue-800">View Order →</a>
-                            {% elif 'flipkart' in sale.merchant.lower() %}
-                            <a href="https://www.flipkart.com/account/orders" target="_blank" class="text-blue-600 hover:text-blue-800">View Order →</a>
-                            {% else %}
-                            <span class="text-gray-400">-</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    {% if sales %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Merchant</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales %}
+            <tr>
+                <td>{{ sale.date }}</td>
+                <td>
+                    {{ sale.merchant }}
+                    <span style="background-color: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 3px; font-size: 11px; margin-left: 5px;">Online</span>
+                </td>
+                <td>{{ sale.category }}</td>
+                <td style="color: #f44336; font-weight: bold;">
+                    -₹{{ "%.2f"|format(sale.amount|abs) }}
+                </td>
+                <td>
+                    {% if 'amazon' in sale.merchant.lower() %}
+                    <a href="https://www.amazon.in/orders" target="_blank" style="color: #1976d2; text-decoration: none;">View Order →</a>
+                    {% elif 'flipkart' in sale.merchant.lower() %}
+                    <a href="https://www.flipkart.com/account/orders" target="_blank" style="color: #1976d2; text-decoration: none;">View Order →</a>
+                    {% else %}
+                    <span style="color: #999;">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <div class="mt-6 bg-blue-50 rounded-lg p-4">
-            <div class="flex justify-between items-center">
-                <p class="text-sm text-gray-700">
-                    <strong>Total Online Spending:</strong> 
-                    <span class="text-lg font-bold text-blue-600">
-                        ₹{{ "%.2f"|format(sales|sum(attribute='amount')|abs) }}
-                    </span>
-                </p>
-                <p class="text-xs text-gray-500">{{ sales|length }} transactions</p>
+    <div style="background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <strong>Total Online Spending:</strong>
+                <span style="font-size: 20px; font-weight: bold; color: #1976d2;">
+                    ₹{{ "%.2f"|format(sales|sum(attribute='amount')|abs) }}
+                </span>
             </div>
+            <div style="color: #666; font-size: 14px;">{{ sales|length }} transactions</div>
         </div>
-        {% else %}
-        <div class="text-center py-12">
-            <p class="text-gray-500 mb-4">No online sales detected yet.</p>
-            <p class="text-sm text-gray-400">Transactions from Amazon, Flipkart, Myntra, etc. will appear here automatically.</p>
-        </div>
-        {% endif %}
     </div>
+    {% else %}
+    <p class="text-center">No online sales detected yet.</p>
+    <p class="text-center" style="color: #666; font-size: 14px; margin-top: 10px;">Transactions from Amazon, Flipkart, Myntra, Paytm, etc. will appear here automatically.</p>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,137 +1,88 @@
 {% extends "base.html" %}
 
+{% block title %}Envelopes{% endblock %}
+
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="bg-white rounded-xl shadow p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Budget Envelopes</h1>
-            <button onclick="showAddModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                Create Envelope
-            </button>
-        </div>
+<div class="card">
+    <h2>Budget Envelopes</h2>
+    <button onclick="showAddModal()" style="margin-bottom: 15px;">Create Envelope</button>
 
-        {% if envelopes %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for env in envelopes %}
-            <div class="border rounded-xl p-6 {% if env.spent > env.allocated %}border-red-400 bg-red-50{% elif env.is_pooled %}border-purple-300 bg-purple-50{% endif %}">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">{{ env.name }}</h3>
-                    {% if env.is_pooled %}
-                    <span class="px-2 py-1 text-xs bg-purple-200 text-purple-800 rounded-full">Pooled</span>
-                    {% endif %}
+    {% if envelopes %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for env in envelopes %}
+        <div class="card" style="{% if env.spent > env.allocated %}border: 2px solid #f44336; background-color: #fee;{% elif env.is_pooled %}border: 2px solid #9c27b0; background-color: #f3e5f5;{% endif %}">
+            <h3>{{ env.name }}{% if env.is_pooled %} <span style="background-color: #9c27b0; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;">Pooled</span>{% endif %}</h3>
+            <div style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Allocated:</span>
+                    <strong>₹{{ "%.2f"|format(env.allocated) }}</strong>
                 </div>
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Allocated:</span>
-                        <span class="font-medium">₹{{ "%.2f"|format(env.allocated) }}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Spent:</span>
-                        <span class="font-medium text-red-600">₹{{ "%.2f"|format(env.spent) }}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Remaining:</span>
-                        <span class="font-bold text-green-600">₹{{ "%.2f"|format(env.allocated - env.spent) }}</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 mt-3">
-                        {% if env.allocated > 0 %}
-                        {% set percentage = (env.spent / env.allocated * 100)|int %}
-                        {% if percentage > 100 %}
-                        {% set display_percentage = 100 %}
-                        {% else %}
-                        {% set display_percentage = percentage %}
-                        {% endif %}
-                        <div class="{% if percentage > 100 %}bg-red-600{% elif percentage > 80 %}bg-yellow-600{% else %}bg-indigo-600{% endif %} h-2 rounded-full" 
-                             style="width: {{ display_percentage }}%"></div>
-                        {% else %}
-                        <div class="bg-gray-400 h-2 rounded-full" style="width: 0%"></div>
-                        {% endif %}
-                    </div>
-                    {% if env.allocated > 0 and env.spent > env.allocated %}
-                    <div class="mt-2 p-2 bg-red-100 border border-red-400 rounded text-xs text-red-700">
-                        ⚠️ Overspent by ₹{{ "%.2f"|format(env.spent - env.allocated) }}
-                    </div>
-                    {% endif %}
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Spent:</span>
+                    <strong style="color: #f44336;">₹{{ "%.2f"|format(env.spent) }}</strong>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="mt-8 border-t pt-6 space-y-6">
-            <!-- Transfer from Balance to Envelope -->
-            <div>
-                <h2 class="text-xl font-bold text-gray-900 mb-4">💰 Allocate from Balance</h2>
-                <div class="bg-blue-50 rounded-lg p-4 mb-4">
-                    <p class="text-sm text-gray-700">
-                        <strong>Available Balance:</strong> 
-                        <span class="text-lg font-bold text-indigo-600">₹{{ "%.2f"|format(balance) }}</span>
-                    </p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Remaining:</span>
+                    <strong style="color: #4CAF50;">₹{{ "%.2f"|format(env.allocated - env.spent) }}</strong>
                 </div>
-                <form method="POST" action="{{ url_for('allocate_from_balance') }}" class="flex flex-wrap gap-4">
-                    <select name="to_envelope" required class="px-3 py-2 border rounded-lg flex-1 min-w-[200px]">
-                        <option value="">Select Envelope</option>
-                        {% for env in envelopes %}
-                        <option value="{{ env.id }}">{{ env.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="number" name="amount" step="0.01" placeholder="Amount to allocate" required class="px-3 py-2 border rounded-lg flex-1 min-w-[150px]">
-                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 whitespace-nowrap">
-                        Allocate Funds
-                    </button>
-                </form>
-            </div>
-
-            <!-- Transfer Between Envelopes -->
-            <div>
-                <h2 class="text-xl font-bold text-gray-900 mb-4">🔄 Transfer Between Envelopes</h2>
-                <form method="POST" action="{{ url_for('transfer_envelope') }}" class="flex flex-wrap gap-4">
-                    <select name="from_envelope" required class="px-3 py-2 border rounded-lg flex-1 min-w-[200px]">
-                        <option value="">From Envelope</option>
-                        {% for env in envelopes %}
-                        <option value="{{ env.id }}">{{ env.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <select name="to_envelope" required class="px-3 py-2 border rounded-lg flex-1 min-w-[200px]">
-                        <option value="">To Envelope</option>
-                        {% for env in envelopes %}
-                        <option value="{{ env.id }}">{{ env.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="number" name="amount" step="0.01" placeholder="Amount" required class="px-3 py-2 border rounded-lg flex-1 min-w-[150px]">
-                    <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 whitespace-nowrap">
-                        Transfer
-                    </button>
-                </form>
+                {% if env.allocated > 0 %}
+                {% set percentage = (env.spent / env.allocated * 100)|int %}
+                {% if percentage > 100 %}{% set display_percentage = 100 %}{% else %}{% set display_percentage = percentage %}{% endif %}
+                <div style="background-color: #ddd; height: 10px; border-radius: 5px; overflow: hidden;">
+                    <div style="background-color: {% if percentage > 100 %}#f44336{% elif percentage > 80 %}#ff9800{% else %}#4CAF50{% endif %}; height: 100%; width: {{ display_percentage }}%;"></div>
+                </div>
+                {% endif %}
+                {% if env.allocated > 0 and env.spent > env.allocated %}
+                <p style="color: #f44336; margin-top: 5px; font-size: 12px;">⚠️ Overspent by ₹{{ "%.2f"|format(env.spent - env.allocated) }}</p>
+                {% endif %}
             </div>
         </div>
-        {% else %}
-        <p class="text-gray-500 text-center py-12">No envelopes yet. Create your first budget envelope.</p>
-        {% endif %}
+        {% endfor %}
     </div>
+    {% else %}
+    <p class="text-center">No envelopes yet. Create your first envelope.</p>
+    {% endif %}
 </div>
 
-<div id="addModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <h3 class="text-lg font-bold mb-4">Create Envelope</h3>
+<!-- Add Envelope Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Create Envelope</div>
         <form method="POST" action="{{ url_for('add_envelope') }}">
-            <div class="space-y-3">
-                <input type="text" name="name" placeholder="Envelope Name" required class="w-full px-3 py-2 border rounded-lg">
-                <input type="number" name="allocated" step="0.01" placeholder="Allocated Amount" required class="w-full px-3 py-2 border rounded-lg">
-                <div class="flex items-center">
-                    <input type="checkbox" name="is_pooled" id="is_pooled" class="mr-2">
-                    <label for="is_pooled" class="text-sm text-gray-700">Pooled/Shared Envelope</label>
-                </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" required>
             </div>
-            <div class="flex justify-end space-x-2 mt-4">
-                <button type="button" onclick="hideAddModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Create</button>
+            <div class="form-group">
+                <label>Allocated Amount</label>
+                <input type="number" name="allocated" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="is_pooled">
+                    Pooled Envelope (shared across categories)
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="hideAddModal()" class="btn-secondary">Cancel</button>
+                <button type="submit">Create</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-function showAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
-function hideAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+function showAddModal() {
+    document.getElementById('addModal').style.display = 'block';
+}
+function hideAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+window.onclick = function(event) {
+    var modal = document.getElementById('addModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
 </script>
 {% endblock %}
