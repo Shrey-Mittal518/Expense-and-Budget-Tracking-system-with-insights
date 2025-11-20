@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Reconciliation Results</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-green-50 rounded-lg p-4">
+                <p class="text-sm text-gray-600 mb-1">Matched</p>
+                <p class="text-2xl font-bold text-green-600">{{ results.matches|length }}</p>
+            </div>
+            <div class="bg-yellow-50 rounded-lg p-4">
+                <p class="text-sm text-gray-600 mb-1">Unmatched (Statement)</p>
+                <p class="text-2xl font-bold text-yellow-600">{{ results.unmatched_statement|length }}</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-4">
+                <p class="text-sm text-gray-600 mb-1">Unmatched (Your Records)</p>
+                <p class="text-2xl font-bold text-red-600">{{ results.unmatched_user|length }}</p>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="bg-blue-50 rounded-lg p-4">
+                <p class="text-lg font-semibold">Match Rate: <span class="text-blue-600">{{ results.match_rate }}%</span></p>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Matched Transactions</h2>
+                {% if results.matches %}
+                <div class="space-y-2">
+                    {% for match in results.matches %}
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ match.statement.merchant }}</p>
+                            <p class="text-sm text-gray-500">{{ match.statement.date }} • ₹{{ "%.2f"|format(match.statement.amount) }}</p>
+                        </div>
+                        <span class="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm">
+                            {{ match.confidence }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">No matches found</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Unmatched Statement Transactions</h2>
+                {% if results.unmatched_statement %}
+                <div class="space-y-2">
+                    {% for trans in results.unmatched_statement %}
+                    <div class="p-3 bg-yellow-50 rounded-lg">
+                        <p class="font-medium text-gray-900">{{ trans.merchant }}</p>
+                        <p class="text-sm text-gray-500">{{ trans.date }} • ₹{{ "%.2f"|format(trans.amount) }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">All statement transactions matched</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Unmatched Your Transactions</h2>
+                {% if results.unmatched_user %}
+                <div class="space-y-2">
+                    {% for trans in results.unmatched_user %}
+                    <div class="p-3 bg-red-50 rounded-lg">
+                        <p class="font-medium text-gray-900">{{ trans.merchant }}</p>
+                        <p class="text-sm text-gray-500">{{ trans.date }} • ₹{{ "%.2f"|format(trans.amount) }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">All your transactions matched</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{{ url_for('reconcile') }}" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 inline-block">
+                New Reconciliation
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

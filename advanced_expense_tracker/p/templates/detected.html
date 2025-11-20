@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Detected Transactions</h1>
+
+        {% if detected %}
+        <div class="space-y-4">
+            {% for d in detected %}
+            <div class="border rounded-lg p-4 flex justify-between items-center">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2">
+                        <p class="font-medium text-gray-900">{{ d.merchant }}</p>
+                        <span class="px-2 py-1 text-xs rounded-full 
+                            {% if d.confidence == 'High' %}bg-green-100 text-green-800
+                            {% elif d.confidence == 'Medium' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ d.confidence }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-500">{{ d.category }} • {{ d.date }} • ₹{{ "%.2f"|format(d.amount) }}</p>
+                </div>
+                <div class="flex space-x-2">
+                    <form method="POST" action="{{ url_for('accept_detected', detected_id=d.id) }}" class="inline">
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            Accept
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('reject_detected', detected_id=d.id) }}" class="inline">
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                            Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-12">No detected transactions pending review.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

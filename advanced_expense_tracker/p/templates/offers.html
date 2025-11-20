@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Offers{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🛍️ Quick Access - Shopping Sites</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+        {% for site_name, site_info in live_offers.items() %}
+        <a href="{{ site_info.url }}" target="_blank" 
+           style="text-align: center; padding: 20px; border: 2px solid {{ site_info.color }}; border-radius: 4px; text-decoration: none; color: #333; display: block;">
+            <div style="font-size: 36px; margin-bottom: 10px;">{{ site_info.logo }}</div>
+            <div style="font-weight: bold;">{{ site_name }}</div>
+            <div style="font-size: 12px; color: #666; margin-top: 5px;">View Deals</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>🔥 Live Offers & Sales</h2>
+    <div style="display: grid; gap: 20px;">
+        {% for site_name, site_info in live_offers.items() %}
+        <div style="border-left: 4px solid {{ site_info.color }}; padding-left: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 24px;">{{ site_info.logo }}</span>
+                    <h3 style="font-size: 18px; font-weight: bold;">{{ site_name }}</h3>
+                </div>
+                <a href="{{ site_info.url }}" target="_blank" 
+                   style="background-color: {{ site_info.color }}; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px;">
+                    Shop Now →
+                </a>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                {% for offer in site_info.offers %}
+                <div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px;">
+                    <p style="font-weight: bold; margin-bottom: 5px;">{{ offer.title }}</p>
+                    <p style="color: #4CAF50; font-weight: bold; font-size: 18px; margin-bottom: 5px;">{{ offer.discount }}</p>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 10px;">{{ offer.category }}</p>
+                    <a href="{{ offer.tracking_url }}?redirect=false" 
+                       style="display: inline-block; padding: 5px 12px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 3px; font-size: 12px;">
+                        Track Purchase 🛒
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2>📌 Your Custom Offers</h2>
+        <button onclick="showAddModal()">Add Custom Offer</button>
+    </div>
+
+    {% if offers %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
+        {% for offer in offers %}
+        <div style="border: 2px solid #81c784; border-radius: 4px; padding: 15px; background-color: #f1f8e9;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <h3 style="font-weight: bold;">{{ offer.merchant }}</h3>
+                <span style="font-size: 20px; font-weight: bold; color: #4CAF50;">{{ offer.discount }}%</span>
+            </div>
+            <p style="font-size: 14px; margin-bottom: 10px;">{{ offer.description }}</p>
+            {% if offer.expiry %}
+            <p style="font-size: 12px; color: #666;">Expires: {{ offer.expiry }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">No custom offers yet. Add your own offers to track special discounts.</p>
+    {% endif %}
+</div>
+
+<!-- Add Offer Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Add Offer</div>
+        <form method="POST" action="{{ url_for('add_offer') }}">
+            <div class="form-group">
+                <label>Merchant Name</label>
+                <input type="text" name="merchant" required>
+            </div>
+            <div class="form-group">
+                <label>Discount %</label>
+                <input type="number" name="discount" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Expiry Date (optional)</label>
+                <input type="date" name="expiry">
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="hideAddModal()" class="btn-secondary">Cancel</button>
+                <button type="submit">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showAddModal() {
+    document.getElementById('addModal').style.display = 'block';
+}
+function hideAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+window.onclick = function(event) {
+    var modal = document.getElementById('addModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

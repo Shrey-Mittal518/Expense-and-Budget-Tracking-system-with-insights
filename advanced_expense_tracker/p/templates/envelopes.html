@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Envelopes{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Budget Envelopes</h2>
+    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+        <button onclick="showAddModal()">Create Envelope</button>
+        <button onclick="showAllocateModal()" style="background-color: #2196F3;">Allocate from Balance</button>
+        <button onclick="showTransferModal()" style="background-color: #FF9800;">Transfer Between Envelopes</button>
+    </div>
+    
+    <div style="background-color: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        <strong>Available Balance:</strong> ₹{{ "%.2f"|format(balance) }}
+    </div>
+
+    {% if envelopes %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for env in envelopes %}
+        <div class="card envelope-card {% if env.spent > env.allocated %}overspent{% elif env.is_pooled %}pooled{% endif %}">
+            <h3>{{ env.name }}{% if env.is_pooled %} <span class="pooled-badge">Pooled</span>{% endif %}</h3>
+            <div style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Allocated:</span>
+                    <strong>₹{{ "%.2f"|format(env.allocated) }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Spent:</span>
+                    <strong style="color: #f44336;">₹{{ "%.2f"|format(env.spent) }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Remaining:</span>
+                    <strong style="color: #4CAF50;">₹{{ "%.2f"|format(env.allocated - env.spent) }}</strong>
+                </div>
+                {% if env.allocated > 0 %}
+                {% set percentage = (env.spent / env.allocated * 100)|int %}
+                {% if percentage > 100 %}
+                    {% set display_percentage = 100 %}
+                    {% set bar_class = 'progress-bar-danger' %}
+                {% elif percentage > 80 %}
+                    {% set display_percentage = percentage %}
+                    {% set bar_class = 'progress-bar-warning' %}
+                {% else %}
+                    {% set display_percentage = percentage %}
+                    {% set bar_class = 'progress-bar-success' %}
+                {% endif %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar {{ bar_class }}" style="--progress-width: {{ display_percentage }}"></div>
+                </div>
+                {% endif %}
+                {% if env.allocated > 0 and env.spent > env.allocated %}
+                <p style="color: #f44336; margin-top: 5px; font-size: 12px;">⚠️ Overspent by ₹{{ "%.2f"|format(env.spent - env.allocated) }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">No envelopes yet. Create your first envelope.</p>
+    {% endif %}
+</div>
+
+<!-- Add Envelope Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Create Envelope</div>
+        <form method="POST" action="{{ url_for('add_envelope') }}">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Allocated Amount</label>
+                <input type="number" name="allocated" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="is_pooled">
+                    Pooled Envelope (shared across categories)
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="hideAddModal()" class="btn-secondary">Cancel</button>
+                <button type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Allocate from Balance Modal -->
+<div id="allocateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Allocate from Balance</div>
+        <form method="POST" action="{{ url_for('allocate_from_balance') }}">
+            <div class="form-group">
+                <label>Available Balance: ₹{{ "%.2f"|format(balance) }}</label>
+            </div>
+            <div class="form-group">
+                <label>To Envelope</label>
+                <select name="to_envelope" required>
+                    {% for env in envelopes %}
+                    <option value="{{ env.id }}">{{ env.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" name="amount" step="0.01" min="0.01" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="hideAllocateModal()" class="btn-secondary">Cancel</button>
+                <button type="submit">Allocate</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Transfer Between Envelopes Modal -->
+<div id="transferModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Transfer Between Envelopes</div>
+        <form method="POST" action="{{ url_for('transfer_envelope') }}">
+            <div class="form-group">
+                <label>From Envelope</label>
+                <select name="from_envelope" required>
+                    {% for env in envelopes %}
+                    <option value="{{ env.id }}">{{ env.name }} (₹{{ "%.2f"|format(env.allocated - env.spent) }} available)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>To Envelope</label>
+                <select name="to_envelope" required>
+                    {% for env in envelopes %}
+                    <option value="{{ env.id }}">{{ env.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" name="amount" step="0.01" min="0.01" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="hideTransferModal()" class="btn-secondary">Cancel</button>
+                <button type="submit">Transfer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.envelope-card.overspent {
+    border: 2px solid #f44336;
+    background-color: #fee;
+}
+.envelope-card.pooled {
+    border: 2px solid #9c27b0;
+    background-color: #f3e5f5;
+}
+.pooled-badge {
+    background-color: #9c27b0;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+.progress-bar-container {
+    background-color: #ddd;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    width: calc(var(--progress-width) * 1%);
+}
+.progress-bar-success {
+    background-color: #4CAF50;
+}
+.progress-bar-warning {
+    background-color: #ff9800;
+}
+.progress-bar-danger {
+    background-color: #f44336;
+}
+</style>
+
+<script>
+function showAddModal() {
+    document.getElementById('addModal').style.display = 'block';
+}
+function hideAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+function showAllocateModal() {
+    document.getElementById('allocateModal').style.display = 'block';
+}
+function hideAllocateModal() {
+    document.getElementById('allocateModal').style.display = 'none';
+}
+function showTransferModal() {
+    document.getElementById('transferModal').style.display = 'block';
+}
+function hideTransferModal() {
+    document.getElementById('transferModal').style.display = 'none';
+}
+window.onclick = function(event) {
+    var addModal = document.getElementById('addModal');
+    var allocateModal = document.getElementById('allocateModal');
+    var transferModal = document.getElementById('transferModal');
+    if (event.target == addModal) {
+        addModal.style.display = 'none';
+    }
+    if (event.target == allocateModal) {
+        allocateModal.style.display = 'none';
+    }
+    if (event.target == transferModal) {
+        transferModal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

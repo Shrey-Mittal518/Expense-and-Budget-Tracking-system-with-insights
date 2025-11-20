@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Forecast{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Balance Forecast</h2>
+    
+    <div class="stats" style="margin-bottom: 25px;">
+        <div class="stat-card">
+            <div class="stat-label">Current Balance</div>
+            <div class="stat-value">₹{{ "%.2f"|format(forecast.current_balance) }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">90-Day Projection</div>
+            <div class="stat-value">₹{{ "%.2f"|format(forecast.projected_balance) }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Confidence</div>
+            <div class="stat-value">{{ forecast.confidence }}</div>
+        </div>
+    </div>
+
+    {% if forecast and forecast.daily_projections %}
+    <div style="margin-top: 30px;">
+        <h3 style="margin-bottom: 15px;">Balance Trend (90 Days)</h3>
+        <canvas id="forecastChart" width="800" height="300" style="max-width: 100%; border: 1px solid #ddd; background: #fafafa;"></canvas>
+        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            <span>Min: ₹{{ "%.2f"|format(forecast.daily_projections|map(attribute='balance')|min) }}</span> | 
+            <span>Max: ₹{{ "%.2f"|format(forecast.daily_projections|map(attribute='balance')|max) }}</span>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center" style="padding: 40px;">Add transactions to see forecast</p>
+    {% endif %}
+</div>
+
+<script>
+{% if forecast and forecast.daily_projections %}
+(function() {
+    var canvas = document.getElementById('forecastChart');
+    if (!canvas) return;
+    
+    var ctx = canvas.getContext('2d');
+    var data = [
+        {% for day in forecast.daily_projections %}
+        {{ day.balance }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    var dates = [
+        {% for day in forecast.daily_projections %}
+        '{{ day.date }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    var width = canvas.width;
+    var height = canvas.height;
+    var padding = 40;
+    var chartWidth = width - padding * 2;
+    var chartHeight = height - padding * 2;
+    
+    var min = Math.min.apply(null, data);
+    var max = Math.max.apply(null, data);
+    var range = max - min || 1;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw grid lines
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    for (var i = 0; i <= 5; i++) {
+        var y = padding + (chartHeight / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+        
+        // Y-axis labels
+        var value = max - (range / 5) * i;
+        ctx.fillStyle = '#666';
+        ctx.font = '11px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText('₹' + value.toFixed(0), padding - 10, y + 4);
+    }
+    
+    // Draw bars
+    var barWidth = chartWidth / data.length;
+    var barSpacing = barWidth * 0.1; // 10% spacing between bars
+    var actualBarWidth = barWidth - barSpacing;
+    
+    for (var i = 0; i < data.length; i++) {
+        var x = padding + (chartWidth / data.length) * i + barSpacing / 2;
+        var barHeight = ((data[i] - min) / range) * chartHeight;
+        var y = padding + chartHeight - barHeight;
+        
+        // Color based on value (green for positive, red for negative)
+        var isPositive = data[i] >= 0;
+        ctx.fillStyle = isPositive ? '#4CAF50' : '#f44336';
+        
+        // Draw bar
+        ctx.fillRect(x, y, actualBarWidth, barHeight);
+        
+        // Bar border
+        ctx.strokeStyle = isPositive ? '#2e7d32' : '#c62828';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, actualBarWidth, barHeight);
+    }
+    
+    // X-axis labels (show every 10th date)
+    ctx.fillStyle = '#666';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    for (var i = 0; i < data.length; i += 10) {
+        var x = padding + (chartWidth / data.length) * i + barWidth / 2;
+        var label = dates[i].substring(5); // Show MM-DD
+        ctx.fillText(label, x, height - padding + 15);
+    }
+    
+    // Add hover effect
+    canvas.addEventListener('mousemove', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var index = Math.floor(((x - padding) / chartWidth) * data.length);
+        if (index >= 0 && index < data.length) {
+            canvas.title = dates[index] + ': ₹' + data[index].toFixed(2);
+            canvas.style.cursor = 'pointer';
+        } else {
+            canvas.title = '';
+            canvas.style.cursor = 'default';
+        }
+    });
+})();
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+id,user_id,amount,merchant,category,date,envelope_id,notes,is_online_sale,created_at
+14,1,3000.0,Received from Friend,Other,2025-11-10,,Auto-detected (Low confidence),0,2025-11-10 16:57:59
+19,1,1500.0,Fuel Station,Transportation,2025-11-09,,Auto-detected (Medium confidence),0,2025-11-10 16:58:12
+15,1,-1200.75,BigBazaar Groceries,Other,2025-11-07,,Auto-detected (Low confidence),0,2025-11-10 16:58:00
+20,1,200.0,Cashback Reward,Other,2025-11-06,,Auto-detected (Low confidence),0,2025-11-10 16:58:14
+9,1,-320.0,Rideshare,Other,2025-11-05,,Auto-detected (Low confidence),0,2025-11-10 16:57:11
+12,1,-1200.75,BigBazaar,Other,2025-11-04,,Auto-detected (Low confidence),0,2025-11-10 16:57:16
+18,1,1299.99,Amazon,Shopping,2025-11-04,,Auto-detected (High confidence),1,2025-11-10 16:58:08
+10,1,-499.0,Netflix,Entertainment,2025-11-03,,Auto-detected (High confidence),0,2025-11-10 16:57:12
+13,1,-250.5,Starbucks,Food & Dining,2025-11-02,,Auto-detected (High confidence),0,2025-11-10 16:57:17

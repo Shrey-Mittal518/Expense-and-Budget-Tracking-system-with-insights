@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-2xl">
+        <div class="text-center">
+            <div class="text-6xl mb-4">✅</div>
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">
+                Added to Cart!
+            </h2>
+            <p class="text-gray-600">Item has been tracked and added to your cart</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-6">
+            <h3 class="font-semibold text-gray-900 mb-3">Item Details</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Merchant:</span>
+                    <span class="font-medium text-gray-900">{{ item.merchant }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Title:</span>
+                    <span class="font-medium text-gray-900">{{ item.title }}</span>
+                </div>
+                {% if item.amount %}
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Amount:</span>
+                    <span class="font-bold text-red-600">₹{{ "%.2f"|format(item.amount|abs) }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <a href="{{ redirect_url }}" target="_blank" rel="noopener noreferrer"
+               class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                Continue to {{ item.merchant }} →
+            </a>
+            
+            <a href="{{ url_for('cart') }}"
+               class="w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                View Cart
+            </a>
+            
+            <a href="{{ url_for('offers') }}"
+               class="w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Browse More Offers
+            </a>
+        </div>
+
+        <div class="bg-blue-50 rounded-lg p-4 mt-6">
+            <p class="text-sm text-gray-700">
+                <strong>Next Steps:</strong> This item is now in your cart. After completing your purchase, 
+                go to your <a href="{{ url_for('cart') }}" class="text-blue-600 hover:text-blue-800 underline">Cart</a> 
+                and click "Accept" to add it to your transaction history.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
