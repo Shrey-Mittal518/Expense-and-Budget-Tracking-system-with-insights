@@ -34,7 +34,7 @@ def create_app():
     os.makedirs('data', exist_ok=True)
     os.makedirs(app.config['USER_DATA_PATH'], exist_ok=True)
     
-    data_store = DataStore(app.config['DATABASE_PATH'], app.config['USER_DATA_PATH'])
+    data_store =  DataStore(app.config['DATABASE_PATH'], app.config['USER_DATA_PATH'])
     data_store.init_db()
     
     # Initialize link tracker
